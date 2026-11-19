@@ -1,0 +1,164 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Private user profile and default monthly budget configuration isolated per authenticated Google user.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Firebase Auth UID of the account owner."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "User display name from Google profile."
+        },
+        "email": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 200,
+          "description": "Verified Gmail / Google account email."
+        },
+        "photoURL": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Optional profile avatar URL."
+        },
+        "defaultMonthlyBudget": {
+          "type": "number",
+          "description": "Default monthly expense budget limit in THB."
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["THB"],
+          "description": "Display currency code."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when profile was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when profile was last updated."
+        }
+      },
+      "required": ["uid", "displayName", "email", "defaultMonthlyBudget", "currency", "createdAt", "updatedAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "A single income or expense ledger entry belonging to a specific user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Owner Firebase Auth UID."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["income", "expense"],
+          "description": "Transaction classification."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Positive amount in THB (> 0 and <= 100000000)."
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60,
+          "description": "Category name in Thai."
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Optional description or memo."
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "minLength": 10,
+          "maxLength": 10,
+          "description": "Transaction calendar date in YYYY-MM-DD."
+        },
+        "monthKey": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}$",
+          "minLength": 7,
+          "maxLength": 7,
+          "description": "Derived month index YYYY-MM for monthly aggregation."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp at creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp at last modification."
+        }
+      },
+      "required": ["userId", "type", "amount", "category", "note", "date", "monthKey", "createdAt", "updatedAt"]
+    },
+    "MonthlyBudget": {
+      "title": "MonthlyBudget",
+      "description": "Per-month expense budget cap configured by the user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Owner Firebase Auth UID."
+        },
+        "monthKey": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}$",
+          "minLength": 7,
+          "maxLength": 7,
+          "description": "Month identifier YYYY-MM."
+        },
+        "limitAmount": {
+          "type": "number",
+          "description": "Budget ceiling in THB (>= 0 and <= 100000000)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp at creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp at last update."
+        }
+      },
+      "required": ["userId", "monthKey", "limitAmount", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile document isolated to the authenticated account owner."
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Income and expense entries owned by userId."
+    },
+    "/users/{userId}/budgets/{monthKey}": {
+      "schema": { "$ref": "#/entities/MonthlyBudget" },
+      "description": "Monthly expense budget overrides indexed by YYYY-MM."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "69319100021db — ระบบบันทึกรายรับ-รายจ่าย",
+  "description": "เว็บแอปพลิเคชันจัดการรายรับ-รายจ่ายส่วนบุคคล พร้อมสรุปผลรายเดือน กราฟวิเคราะห์กระแสเงินสด เก็บข้อมูลบน Firebase Firestore (db-af950) และเข้าสู่ระบบด้วย Gmail",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
